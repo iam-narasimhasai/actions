@@ -33,7 +33,7 @@ jobs:
             name: dragonfile
 
         - name: check dragon file
-          run: grep -i "dragon"
+          run: grep -i "dragon" dragon.txt
 
     deploy_job:
         runs-on: ubuntu-latest
