@@ -1,0 +1,45 @@
+name: revision-one
+
+on:
+    push
+
+jobs:
+    build_job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: checkout
+          uses: actions/checkout@v4.2.0
+        - name: ls
+          run: ls -ltra          
+        - name: install consway
+          run: sudo apt-get install -y cowsay
+        
+        - name: command for dragon
+          run: cowsay -f dragon "Run for cover, I am DRAGON....RAWR" >> dragon.txt
+
+        - name: upload artifact
+          uses: actions/upload-artifact@v4.5.0
+          with:
+            name: dragonfile
+            path: dragon.txt
+
+    check_job:
+        runs-on: ubuntu-latest
+        needs: build_job
+        steps:
+        - name: download artifact
+          uses: actions/download-artifact@v4.1.8
+          with:
+            name: dragonfile
+
+        - name: check dragon file
+          run: grep -i "dragon"
+
+    deploy_job:
+        runs-on: ubuntu-latest
+        needs: [build_job,check_job]
+        steps:
+         - name: download artifact
+           uses: actions/download-artifact@v4.1.8
+           with:
+            name: dragonfile
