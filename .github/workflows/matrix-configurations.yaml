@@ -11,7 +11,7 @@ jobs:
         matrix:
             #key : value pairs of our wish 
             # 6 jobs 
-            os: ["ubuntu-latest,windows-latest,ubuntu-20.04"]
+            os: ["ubuntu-latest,windows-latest"]
             images: [hello-world,alpine]
       runs-on: ${{ matrix.os }}
       steps:
