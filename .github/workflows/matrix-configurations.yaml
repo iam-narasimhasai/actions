@@ -4,19 +4,16 @@ on:
   push:
   workflow_dispatch:
 
-
 jobs:
-    deploy:
-      strategy:
-        matrix:
-            #key : value pairs of our wish 
-            # 6 jobs 
-            os: ["ubuntu-latest,windows-latest"]
-            images: [hello-world,alpine]
-      runs-on: ${{ matrix.os }}
-      steps:
-      - name: Echo Docker Details
+  deploy:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]  # Removed ubuntu-20.04
+        images: [hello-world, alpine]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Display Docker Info
         run: docker info
 
-      - name: Run Images on ${{ matrix.os }}
+      - name: Run Docker Image
         run: docker run ${{ matrix.images }}
