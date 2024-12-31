@@ -4,14 +4,22 @@ on:
   push:
   workflow_dispatch:
 
-jobs:
+jobs: #previous all jobs runs Parallel
   deploy:
     strategy:
+      fail-fast: false
+      max-parallel: 2 # max 2 jobs at a time
       matrix:
-        os: [ubuntu-latest, windows-latest]  # Removed ubuntu-20.04
+        os: [ubuntu-latest, windows-latest]  
         images: [hello-world, alpine]
+        exclude:
+          - images: alpine
+            os: windows-latest
+        include:
+          - images: amd64/alpine
+            os: ubuntu-latest
     runs-on: ${{ matrix.os }}
-    steps:
+    steps: 
       - name: Display Docker Info
         run: docker info
 
