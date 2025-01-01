@@ -1,0 +1,95 @@
+name: revision-2
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: "* * * * *"
+    push:
+      branches:
+        - main
+        - '!feature/**'
+      paths-ignore:
+        - README.md
+
+env:
+    CONTAINER_REGISTRY: docker.io
+    IMAGE_NAME: narasimhasai95/weatherapp
+
+
+
+jobs:
+    ascii_job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: checkout to repo
+          uses: actions/checkout@v4.2.2
+
+        - name: execute shell script
+          run: |
+           chmod +x ascii-script.sh
+           ./ascii-script.sh
+
+        - name: upload dragon file as artifact
+          uses: actions/upload-artifact@v4.5.0
+          with:
+            name: dragonfile
+            path: dragon.txt
+
+    deploy_ascii_job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: download dragon file
+          uses: actions/download-artifact@v4.1.8
+          with:
+            name: dragonfile
+
+        - name: deploy dragon
+          run: cat dragon.txt
+
+    printenv_job:
+        runs-on: ubuntu-latest
+        steps:
+        - name: read envs
+          run: |
+            echo ${{ env.CONTAINER_REGISTRY}}
+            echo ${{vars.DOCKER_USERNAME}} 
+            echo ${{secrets.DOCKER_PASSWORD}}
+
+    
+    condition_job:
+        if: github.ref == 'refs/heads/main'
+        needs: [ascii_job,deploy_ascii_job,printenv_job]
+        concurrency:
+            group: prod
+            cancel-in-progress: true
+        runs-on: ubuntu-latest
+        steps:
+            - name: Docker information
+              run: docker info\
+            - name: Dump job context
+              env:
+                JOB_CONTEXT: ${{ toJson(job) }}
+              run: echo "$JON_CONTEXT"
+    
+    
+    matrix_job:
+        strategy:
+            fail-fast: false
+            max-parallel: 2
+            matrix:
+                hardware: [ubuntu-latest,windows-latest]
+                images: [hello-world,alpine]
+                exclude:
+                  - images: alpine
+                    hardware: windows-latest
+        runs-on: ${{matrix.hardware}}
+        steps:
+        - name: Docker info
+          run: docker info
+
+        - name: Run Docker image - ${{matrix.images}}
+          run: |
+            docker run ${{matrix.images}}
+            echo event type ${{github.event_name}}
+            
+    
